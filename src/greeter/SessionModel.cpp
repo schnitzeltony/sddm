@@ -128,21 +128,25 @@ namespace SDDM {
             if (fi.isAbsolute()) {
                 if (!fi.exists() || !fi.isExecutable())
                     execAllowed = false;
+                qDebug() << "Abs path allowed: " << execAllowed;
             } else {
                 execAllowed = false;
                 QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
                 QString envPath = env.value(QStringLiteral("PATH"));
+                qDebug() << "PATH: " << envPath;
                 QStringList pathList = envPath.split(QLatin1Char(':'));
                 foreach(const QString &path, pathList) {
                     QDir pathDir(path);
                     fi.setFile(pathDir, si->tryExec());
                     if (fi.exists() && fi.isExecutable()) {
+                        qDebug() << "Reallowed by path: " << path;
                         execAllowed = true;
                         break;
                     }
                 }
             }
             // add to sessions list
+            qDebug() << "Hidden: " << si->isHidden() << " noDisplay: " << si->isNoDisplay() << " execAllowed: " << execAllowed;
             if (!si->isHidden() && !si->isNoDisplay() && execAllowed)
                 d->sessions.push_back(si);
             else
